@@ -67,8 +67,8 @@ class Handler:
             self.time = time.time()
 
     def get_rect(self):
-        if isinstance(self.memory, list):
-            return self.memory
+        if self.init_point:
+            return self.init_point, self.end_point
         else:
             return None
 
