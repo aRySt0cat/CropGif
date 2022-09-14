@@ -26,32 +26,37 @@ class Handler:
         self.time = 0.0
         self.window = window
         cv2.setMouseCallback(window, self.callback)
-        self.memory = None
         self.frame = 0
         self.img = self.gif[self.frame]
         cv2.imshow(window, self.img)
+        self.hold = False
+        self.init_point = None
+        self.end_point = None
 
     def callback(self, event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
-            self.memory = (x, y)
+            self.init_point = (x, y)
+            self.hold = True
         elif event == cv2.EVENT_LBUTTONUP:
-            self.memory = [self.memory, (x, y)]
+            self.hold = False
+
         elif event == cv2.EVENT_RBUTTONDOWN:
-            self.memory = None
+            self.init_point = None
+            self.end_point = None
 
-        self.show_rect(x, y)
+        if self.hold:
+            self.end_point = (x, y)
 
-    def show_rect(self, x=None, y=None):
-        if isinstance(self.memory, tuple):
-            img = cv2.rectangle(
-                self.img.copy(), self.memory, (x, y), (255, 0, 0))
-            cv2.imshow(self.window, img)
-        elif isinstance(self.memory, list):
-            img = cv2.rectangle(
-                self.img.copy(), self.memory[0], self.memory[1], (255, 0, 0))
-            cv2.imshow(self.window, img)
-        else:
+
+        self.show_rect()
+
+    def show_rect(self):
+        if self.init_point is None:
             cv2.imshow(self.window, self.img)
+        else:
+            img = cv2.rectangle(
+                self.img.copy(), self.init_point, self.end_point, (255, 0, 0))
+            cv2.imshow(self.window, img)
 
 
     def play_gif(self):
